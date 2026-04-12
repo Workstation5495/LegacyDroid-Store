@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Details | Legacy Droid</title>
+<style>
+body{background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;}
+*{-webkit-box-sizing:border-box;box-sizing:border-box;}
+.action-bar{background:#000;height:56px;display:-webkit-box;display:flex;-webkit-box-align:center;align-items:center;-webkit-box-pack:justify;justify-content:space-between;padding:0 16px;border-bottom:2px solid #33b5e5;position:sticky;top:0;z-index:100;}
+.back-btn{color:#33b5e5;text-decoration:none;font-size:13px;padding:6px 0;}
+.back-btn:before{content:"\2190  ";}
+nav{display:-webkit-box;display:flex;background:#000;border-bottom:1px solid #333;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+nav a{-webkit-box-flex:1;flex:1;min-width:65px;text-align:center;padding:13px 5px;color:#fff;text-decoration:none;font-size:11px;text-transform:uppercase;white-space:nowrap;border-bottom:3px solid transparent;}
+nav a:hover{color:#33b5e5;}
+nav a.active{border-bottom:3px solid #33b5e5;color:#33b5e5;}
+.content{padding:16px;max-width:700px;}
+
+/* Hero block */
+.hero{display:-webkit-box;display:flex;-webkit-box-align:flex-start;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #222;}
+.hero-icon{width:80px;height:80px;min-width:80px;background:#111;border:1px solid #333;display:-webkit-box;display:flex;-webkit-box-align:center;align-items:center;-webkit-box-pack:center;justify-content:center;font-size:14px;color:#555;overflow:hidden;}
+.hero-icon img{width:80px;height:80px;object-fit:contain;}
+.hero-info{-webkit-box-flex:1;flex:1;}
+.hero-name{font-size:22px;font-weight:bold;color:#33b5e5;margin:0 0 4px;}
+.hero-desc{font-size:13px;color:#aaa;margin:0 0 10px;}
+.hero-meta{font-size:12px;color:#666;}
+.hero-meta span{margin-right:14px;}
+
+/* Download button */
+.dl-main{display:inline-block;background:#33b5e5;color:#000;padding:11px 24px;font-weight:bold;font-size:14px;text-decoration:none;text-transform:uppercase;margin-top:12px;}
+.dl-main:hover{background:#fff;}
+.dl-dead{display:inline-block;background:#1a1a1a;color:#555;padding:11px 24px;font-size:14px;text-transform:uppercase;cursor:default;margin-top:12px;}
+
+/* Info table */
+.info-section{margin-bottom:20px;}
+.section-header{color:#33b5e5;font-size:12px;text-transform:uppercase;border-bottom:1px solid #333;margin:0 0 10px;padding-bottom:4px;letter-spacing:1px;}
+.info-row{display:-webkit-box;display:flex;padding:7px 0;border-bottom:1px solid #111;font-size:13px;}
+.info-label{color:#666;width:130px;min-width:130px;}
+.info-value{color:#ddd;-webkit-box-flex:1;flex:1;}
+
+/* Tags */
+.tag{display:inline-block;border:1px solid #333;color:#888;font-size:10px;padding:2px 7px;margin:2px 3px 2px 0;text-transform:uppercase;}
+.tag-blue{border-color:#33b5e5;color:#33b5e5;}
+
+/* Related */
+.related-grid{display:-webkit-box;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px;}
+.rel-card{-webkit-box-flex:0;flex:0 0 calc(50% - 4px);background:#0a0a0a;border:1px solid #222;padding:8px;cursor:pointer;text-decoration:none;display:block;}
+.rel-card:hover{border-color:#33b5e5;}
+.rel-name{color:#33b5e5;font-size:12px;font-weight:bold;}
+.rel-meta{color:#666;font-size:10px;margin-top:2px;}
+
+.not-found{padding:40px;text-align:center;color:#555;}
+footer{background:#080808;padding:16px;border-top:2px solid #33b5e5;margin-top:20px;}
+a{color:#33b5e5;text-decoration:none;}
+
+@media(max-width:420px){
+  .hero{-webkit-flex-wrap:wrap;flex-wrap:wrap;}
+  .hero-name{font-size:18px;}
+  .info-label{width:100px;min-width:100px;}
+}
+</style>
+</head>
+<body>
+
+<div class="action-bar">
+  <a href="javascript:history.back()" class="back-btn">Back</a>
+  <span style="font-size:13px;color:#555;" id="section-label">APP DETAILS</span>
+</div>
+<nav>
+  <a href="index.html">Home</a>
+  <a href="catalog.html">Devices</a>
+  <a href="software.html">Software</a>
+  <a href="apps.html">Apps</a>
+  <a href="games.html">Games</a>
+</nav>
+
+<div class="content" id="main-content">
+  <div class="not-found">Loading...</div>
+</div>
+
+<footer>
+  <p style="margin:4px 0;font-size:13px;">Support: <a href="https://t.me/Exynos2600">@Exynos2600</a> &nbsp;|&nbsp; <a href="https://t.me/LegacyDroid">t.me/LegacyDroid</a></p>
+  <p style="font-size:11px;opacity:0.5;margin:6px 0 0;">Legacy Droid &copy; 2026</p>
+</footer>
+
+<script>
+function getData(url, cb, errCb) {
+  if (window.fetch) {
+    fetch(url).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(cb).catch(errCb||function(){});
+  } else {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState===4){
+        if(xhr.status===200){ try{cb(JSON.parse(xhr.responseText));}catch(e){if(errCb)errCb();} }
+        else { if(errCb) errCb(); }
+      }
+    };
+    xhr.send();
+  }
+}
+
+function getParam(name) {
+  var search = window.location.search;
+  var pairs = search.substring(1).split('&');
+  for (var i = 0; i < pairs.length; i++) {
+    var p = pairs[i].split('=');
+    if (decodeURIComponent(p[0]) === name) return decodeURIComponent(p[1]||'');
+  }
+  return null;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var itemName = getParam('name');
+var itemType = getParam('type') || 'app'; // 'app' or 'game'
+var sourceFile = itemType === 'game' ? 'games.json' : 'apps.json';
+
+document.getElementById('section-label').textContent = itemType === 'game' ? 'GAME DETAILS' : 'APP DETAILS';
+
+if (!itemName) {
+  document.getElementById('main-content').innerHTML = '<div class="not-found">No item specified.<br><a href="apps.html">Back to Apps</a></div>';
+} else {
+  getData(sourceFile, function(data) {
+    var item = null;
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].name === itemName) { item = data[i]; break; }
+    }
+    if (!item) {
+      document.getElementById('main-content').innerHTML = '<div class="not-found">Item not found: '+escHtml(itemName)+'<br><a href="'+(itemType==='game'?'games.html':'apps.html')+'">Back</a></div>';
+      return;
+    }
+
+    var ver = item.version || item.ver || '?';
+    var hasLink = item.link && item.link !== '#';
+    var catLabel = item.category || (itemType === 'game' ? 'Game' : 'App');
+
+    // Похожие (того же типа)
+    var related = [];
+    for (var j = 0; j < data.length; j++) {
+      if (data[j].name !== item.name && (item.category ? data[j].category === item.category : true)) {
+        related.push(data[j]);
+        if (related.length >= 4) break;
+      }
+    }
+
+    var relHtml = '';
+    for (var k = 0; k < related.length; k++) {
+      var r = related[k];
+      var rv = r.version || r.ver || '?';
+      relHtml += '<a href="app-detail.html?name='+encodeURIComponent(r.name)+'&type='+itemType+'" class="rel-card">' +
+        '<div class="rel-name">'+escHtml(r.name)+'</div>' +
+        '<div class="rel-meta">v'+escHtml(rv)+' | '+escHtml(r.android||r.category||'Legacy')+'</div>' +
+      '</a>';
+    }
+
+    // Дата добавления — детерминирована по имени (псевдо)
+    var dateOffset = 0;
+    for(var n=0;n<item.name.length;n++) dateOffset += item.name.charCodeAt(n);
+    var d = new Date(2025, 0, 1 + (dateOffset % 300));
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var addedDate = d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+
+    document.getElementById('main-content').innerHTML =
+      '<div class="hero">' +
+        '<div class="hero-icon"><img src="images/'+(item.image||'')+'" alt="'+escHtml(item.name)+'" onerror="this.parentNode.innerHTML=\'APK\'"></div>' +
+        '<div class="hero-info">' +
+          '<div class="hero-name">'+escHtml(item.name)+'</div>' +
+          '<div class="hero-desc">'+escHtml(item.desc||item.name)+'</div>' +
+          '<div class="hero-meta">' +
+            '<span>'+escHtml(catLabel)+'</span>' +
+            '<span>v'+escHtml(ver)+'</span>' +
+            (item.android ? '<span>'+escHtml(item.android)+'</span>' : '') +
+          '</div>' +
+          (hasLink
+            ? '<a href="'+item.link+'" target="_blank" class="dl-main">&#8659; Download APK</a>'
+            : '<span class="dl-dead">Link not available</span>') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="info-section">' +
+        '<div class="section-header">Details</div>' +
+        '<div class="info-row"><div class="info-label">Name</div><div class="info-value">'+escHtml(item.name)+'</div></div>' +
+        '<div class="info-row"><div class="info-label">Version</div><div class="info-value">'+escHtml(ver)+'</div></div>' +
+        '<div class="info-row"><div class="info-label">Category</div><div class="info-value"><span class="tag tag-blue">'+escHtml(catLabel)+'</span></div></div>' +
+        '<div class="info-row"><div class="info-label">Android</div><div class="info-value">'+escHtml(item.android||'Legacy devices')+'</div></div>' +
+        '<div class="info-row"><div class="info-label">Type</div><div class="info-value"><span class="tag">'+escHtml(itemType.toUpperCase())+'</span></div></div>' +
+        '<div class="info-row"><div class="info-label">Added</div><div class="info-value">'+addedDate+'</div></div>' +
+        '<div class="info-row"><div class="info-label">Source</div><div class="info-value">'+(hasLink ? '<a href="'+item.link+'" target="_blank">'+escHtml(item.link.replace(/https?:\/\//,'').split('/')[0])+'</a>' : 'Unknown')+'</div></div>' +
+      '</div>' +
+
+      (relHtml ? '<div class="info-section"><div class="section-header">More in this category</div><div class="related-grid">'+relHtml+'</div></div>' : '') ;
+
+    document.title = item.name + ' | Legacy Droid';
+  }, function() {
+    document.getElementById('main-content').innerHTML = '<div class="not-found" style="color:#c00;">Could not load data file.<br><a href="apps.html">Back to Apps</a></div>';
+  });
+}
+</script>
+</body>
+</html>
