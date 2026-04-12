@@ -15,12 +15,17 @@
             --text-dim: #888888;
         }
 
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
             background-color: var(--background);
             color: var(--text-main);
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
+            line-height: 1.4;
         }
 
         /* Action Bar */
@@ -32,20 +37,25 @@
             align-items: center;
             padding: 0 16px;
             border-bottom: 2px solid var(--holo-blue);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         header h1 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 300;
             text-transform: uppercase;
             margin: 0;
+            letter-spacing: 1px;
         }
 
         .version-tag {
             color: var(--holo-blue);
-            font-size: 12px;
+            font-size: 11px;
             border: 1px solid var(--holo-blue);
             padding: 2px 6px;
+            font-weight: bold;
         }
 
         /* Tabs Navigation */
@@ -54,18 +64,22 @@
             background-color: var(--background);
             border-bottom: 1px solid var(--divider);
             overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
         }
+
+        nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
         nav a {
             flex: 1;
-            min-width: 100px;
+            min-width: 90px;
             text-align: center;
-            padding: 14px 0;
+            padding: 14px 8px;
             color: var(--text-main);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
         }
 
         nav a.active {
@@ -73,15 +87,27 @@
             color: var(--holo-blue);
         }
 
-        .content { padding: 16px; }
+        .content { padding: 16px; max-width: 800px; margin: 0 auto; }
+
+        /* Welcome Block */
+        .welcome-block {
+            margin-bottom: 24px;
+            padding: 10px 0;
+        }
+        .welcome-block h2 {
+            color: var(--holo-blue);
+            font-weight: 300;
+            margin: 0 0 8px 0;
+            font-size: 24px;
+        }
 
         /* Ad Banner */
         .ad-banner {
             background: var(--dark-gray);
             border: 1px dashed var(--holo-blue);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .ad-banner a { color: var(--holo-blue); text-decoration: none; font-weight: bold; }
 
@@ -90,60 +116,72 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Mobile adaptation for grid */
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 18px; }
         }
 
         .section-header {
             color: var(--holo-blue);
-            font-size: 16px;
-            font-weight: 300;
+            font-size: 14px;
+            font-weight: 700;
             text-transform: uppercase;
             border-bottom: 1px solid var(--divider);
             margin-bottom: 10px;
             padding-bottom: 4px;
+            display: flex;
+            align-items: center;
         }
 
         .board {
             background: #0a0a0a;
             border: 1px solid var(--divider);
-            padding: 10px;
-            min-height: 80px;
+            padding: 12px;
+            min-height: 90px;
         }
 
-        .empty-text { color: var(--text-dim); font-style: italic; font-size: 14px; }
+        .empty-text { color: var(--text-dim); font-style: italic; font-size: 13px; margin: 0; }
 
         /* Top Selection */
         .top-selection {
-            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
-            border: 1px solid var(--holo-blue);
-            padding: 15px;
+            background: linear-gradient(180deg, #151515 0%, #000000 100%);
+            border: 1px solid var(--divider);
+            border-left: 3px solid var(--holo-blue);
+            padding: 12px;
         }
 
         .top-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #222;
         }
+        .top-item:last-child { border-bottom: none; }
 
-        .top-label { color: var(--holo-blue); font-size: 12px; text-transform: uppercase; }
+        .top-label { color: var(--holo-blue); font-size: 11px; text-transform: uppercase; font-weight: bold; }
+        .top-value { font-size: 14px; }
 
         /* Footer Section */
         footer {
             margin-top: 40px;
-            border-top: 1px solid var(--divider);
-            padding: 16px;
-            background-color: #050505;
+            border-top: 2px solid var(--holo-blue);
+            padding: 20px 16px;
+            background-color: #080808;
         }
 
         .footer-link {
             color: var(--holo-blue);
             text-decoration: none;
+            border-bottom: 1px dotted var(--holo-blue);
         }
 
         .footer-info {
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 300;
         }
 
@@ -151,9 +189,9 @@
             text-align: center;
             color: var(--text-dim);
             font-size: 10px;
-            margin-top: 20px;
+            margin-top: 25px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -173,59 +211,66 @@
 </nav>
 
 <div class="content">
+
+    <div class="welcome-block">
+        <h2>Hello, Guest!</h2>
+        <p style="margin: 0; color: var(--text-dim); font-size: 15px;">Welcome to the official repository for legacy Android enthusiasts.</p>
+    </div>
     
     <div class="ad-banner">
-        <div>YOUR AD COULD BE HERE</div>
-        <div style="font-size: 12px; margin-top: 8px;">Contact: <a href="https://t.me/Exynos2600">@Exynos2600</a></div>
+        <div style="font-size: 13px; letter-spacing: 1px;">PLACE YOUR AD HERE</div>
+        <div style="font-size: 12px; margin-top: 6px;">Contact: <a href="https://t.me/Exynos2600">@Exynos2600</a></div>
     </div>
 
     <div class="grid">
-        <div>
+        <div id="bulletin">
             <div class="section-header">Bulletin Board</div>
             <div class="board">
-                <p class="empty-text">Empty</p>
+                <p class="empty-text">No announcements yet.</p>
             </div>
         </div>
 
-        <div>
-            <div class="section-header">Updates</div>
+        <div id="updates">
+            <div class="section-header">Recent Updates</div>
             <div class="board">
-                <p class="empty-text">No new updates</p>
+                <p class="empty-text">Everything is up to date.</p>
             </div>
         </div>
     </div>
 
-    <div class="section-header">Top of the Day</div>
+    <div class="section-header">Daily Highlights</div>
     <div class="top-selection">
         <div class="top-item">
-            <span class="top-label">Device:</span>
-            <span>Samsung Galaxy S III (i9300)</span>
+            <span class="top-label">Device</span>
+            <span class="top-value">Samsung Galaxy S III</span>
         </div>
         <div class="top-item">
-            <span class="top-label">App:</span>
-            <span>Titanium Backup Pro</span>
+            <span class="top-label">Utility</span>
+            <span class="top-value">Titanium Backup</span>
         </div>
         <div class="top-item">
-            <span class="top-label">Game:</span>
-            <span>N.O.V.A. 3</span>
+            <span class="top-label">Game</span>
+            <span class="top-value">N.O.V.A. 3</span>
         </div>
     </div>
 
 </div>
 
 <footer>
-    <div class="section-header">Support & Community</div>
+    <div class="section-header" style="border-bottom: none;">Support & Contacts</div>
+    
     <div class="footer-info">
-        <span style="color: var(--holo-blue);">Support:</span> Contact <a href="https://t.me/Exynos2600" class="footer-link">@Exynos2600</a>
+        <span style="color: var(--holo-blue);">Owner:</span> <a href="https://t.me/Exynos2600" class="footer-link">@Exynos2600</a>
     </div>
     <div class="footer-info">
-        <span style="color: var(--holo-blue);">Telegram:</span> <a href="https://t.me/LegacyDroid" class="footer-link">t.me/LegacyDroid</a>
+        <span style="color: var(--holo-blue);">Community:</span> <a href="https://t.me/LegacyDroid" class="footer-link">t.me/LegacyDroid</a>
     </div>
-    <div class="footer-info" style="margin-top: 15px;">
-        <span style="color: var(--holo-blue);">Developer:</span> Workstation5495
+    <div class="footer-info" style="margin-top: 15px; opacity: 0.8;">
+        <span style="color: var(--holo-blue);">Dev:</span> Workstation5495
     </div>
+
     <div class="copyright">
-        Legacy Droid Project © 2026
+        Legacy Droid Project &copy; 2026
     </div>
 </footer>
 
