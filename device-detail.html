@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Device | Legacy Droid</title>
+<link rel="stylesheet" href="holo.css">
+</head>
+<body>
+
+<div class="ab">
+  <a href="catalog.html" class="ab-back">Catalog</a>
+  <span class="ab-meta">DEVICE INFO</span>
+</div>
+
+<nav class="nav">
+  <a href="index.html">Home</a>
+  <a href="catalog.html" class="on">Devices</a>
+  <a href="software.html">Software</a>
+  <a href="apps.html">Apps</a>
+  <a href="games.html">Games</a>
+</nav>
+
+<div class="page-content" id="main">
+  <div class="empty">Loading device info...</div>
+</div>
+
+<footer>
+  <p>Data: <a href="https://wiki.lineageos.org" target="_blank">LineageOS Wiki</a> &nbsp;&#183;&nbsp; <a href="https://t.me/LegacyDroid">t.me/LegacyDroid</a></p>
+  <p style="opacity:.4;font-size:11px;margin-top:6px;">Legacy Droid &copy; 2026</p>
+</footer>
+
+<script>
+function param(n){var s=window.location.search.substring(1).split('&');for(var i=0;i<s.length;i++){var p=s[i].split('=');if(decodeURIComponent(p[0])===n)return decodeURIComponent(p[1]||'');}return null;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+var codename=param('codename');
+var vendor=param('vendor')||'';
+var name=param('name')||codename||'Unknown';
+
+if(!codename){
+  document.getElementById('main').innerHTML='<div class="empty">No device. <a href="catalog.html">Back to Catalog</a></div>';
+}else{
+  document.title=esc(name)+' | Legacy Droid';
+  var img1='https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/images/devices/'+codename+'.png';
+  var img2='https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/images/devices/'+codename+'_hero.png';
+  var wikiUrl='https://wiki.lineageos.org/devices/'+codename+'/';
+  var dlUrl='https://download.lineageos.org/devices/'+codename+'/builds';
+  var xdaUrl='https://forum.xda-developers.com/search/?q='+encodeURIComponent(codename);
+  var twrpUrl='https://twrp.me/Devices/';
+
+  document.getElementById('main').innerHTML=
+    '<div class="hero">'
+      +'<div class="hero-img" style="width:100px;height:130px;min-width:100px;">'
+        +'<img id="dimg" src="'+img1+'" alt="'+esc(name)+'" style="max-width:96px;max-height:126px;object-fit:contain;" onerror="tryFallback()">'
+      +'</div>'
+      +'<div class="hero-body">'
+        +'<div class="hero-brand">'+esc(vendor)+'</div>'
+        +'<div class="hero-name">'+esc(name)+'</div>'
+        +'<div class="hero-desc" style="font-family:monospace;font-size:12px;color:#555;">'+esc(codename)+'</div>'
+        +'<span class="badge badge-solid">Legacy Device</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="action-row">'
+      +'<a href="'+wikiUrl+'" target="_blank" class="btn-big">LineageOS Wiki</a>'
+      +'<a href="'+dlUrl+'" target="_blank" class="btn-outline">ROM Downloads</a>'
+    +'</div>'
+    +'<div class="sh">Device Info</div>'
+    +'<table class="info-table">'
+      +'<tr><td>Model</td><td>'+esc(name)+'</td></tr>'
+      +'<tr><td>Codename</td><td style="font-family:monospace;">'+esc(codename)+'</td></tr>'
+      +'<tr><td>Manufacturer</td><td>'+esc(vendor)+'</td></tr>'
+      +'<tr><td>Wiki</td><td><a href="'+wikiUrl+'" target="_blank">View full specs &#8594;</a></td></tr>'
+    +'</table>'
+    +'<div class="notice">&#9432; Full specifications (CPU, RAM, screen, battery, connectivity) are available on the <a href="'+wikiUrl+'" target="_blank">LineageOS Wiki page</a> for this device.</div>'
+    +'<div class="sh">Resources</div>'
+    +'<div class="action-row">'
+      +'<a href="'+xdaUrl+'" target="_blank" class="btn-outline">XDA Forum</a>'
+      +'<a href="'+twrpUrl+'" target="_blank" class="btn-outline">TWRP Recovery</a>'
+    +'</div>'
+    +'<div class="sh">Flashing Guide</div>'
+    +'<div class="notice">'
+      +'1. Unlock bootloader: <code>fastboot oem unlock</code><br>'
+      +'2. Flash TWRP recovery: <code>fastboot flash recovery twrp.img</code><br>'
+      +'3. Boot TWRP, wipe Data + Cache + Dalvik<br>'
+      +'4. Flash LineageOS zip from TWRP<br>'
+      +'5. (Optional) Flash GApps package<br>'
+      +'6. Reboot system<br><br>'
+      +'Full guide: <a href="'+wikiUrl+'" target="_blank">'+wikiUrl+'</a>'
+    +'</div>';
+
+  window.tryFallback=function(){
+    var img=document.getElementById('dimg');
+    if(img&&img.src.indexOf('_hero')<0){
+      img.src=img2;
+      img.onerror=function(){img.style.opacity='0.05';};
+    }
+  };
+}
+</script>
+</body>
+</html>

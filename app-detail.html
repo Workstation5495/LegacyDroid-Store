@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Details | Legacy Droid</title>
+<link rel="stylesheet" href="holo.css">
+</head>
+<body>
+
+<div class="ab">
+  <a href="javascript:history.back()" class="ab-back">Back</a>
+  <span class="ab-meta" id="ab-label">APP</span>
+</div>
+
+<nav class="nav">
+  <a href="index.html">Home</a>
+  <a href="catalog.html">Devices</a>
+  <a href="software.html">Software</a>
+  <a href="apps.html">Apps</a>
+  <a href="games.html">Games</a>
+</nav>
+
+<div class="page-content" id="main">
+  <div class="empty">Loading...</div>
+</div>
+
+<footer>
+  <p>Support: <a href="https://t.me/Exynos2600">@Exynos2600</a> &nbsp;&#183;&nbsp; <a href="https://t.me/LegacyDroid">t.me/LegacyDroid</a></p>
+  <p style="opacity:.4;font-size:11px;margin-top:6px;">Legacy Droid &copy; 2026</p>
+</footer>
+
+<script>
+function get(url,cb,err){
+  if(window.fetch){fetch(url).then(function(r){if(!r.ok)throw 0;return r.json();}).then(cb).catch(err||function(){});}
+  else{var x=new XMLHttpRequest();x.open('GET',url,true);x.onreadystatechange=function(){if(x.readyState===4){if(x.status===200){try{cb(JSON.parse(x.responseText));}catch(e){if(err)err();}}else if(err)err();}};x.send();}
+}
+function param(n){
+  var s=window.location.search.substring(1).split('&');
+  for(var i=0;i<s.length;i++){var p=s[i].split('=');if(decodeURIComponent(p[0])===n)return decodeURIComponent(p[1]||'');}return null;
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+var name=param('name');
+var type=param('type')||'app';
+var src=type==='game'?'games.json':'apps.json';
+document.getElementById('ab-label').textContent=type==='game'?'GAME':'APP';
+
+if(!name){
+  document.getElementById('main').innerHTML='<div class="empty">No item. <a href="apps.html">Back to Apps</a></div>';
+}else{
+  get(src,function(data){
+    var item=null;
+    for(var i=0;i<data.length;i++){if(data[i].name===name){item=data[i];break;}}
+    if(!item){
+      document.getElementById('main').innerHTML='<div class="empty">Not found: '+esc(name)+'<br><a href="'+(type==='game'?'games.html':'apps.html')+'">Back</a></div>';
+      return;
+    }
+    var ver=item.version||item.ver||'?';
+    var hasApk=item.apk&&item.apk!=='#';
+    var hasLink=item.link&&item.link!=='#';
+
+    // Related items (same category)
+    var rel=[];
+    for(var j=0;j<data.length;j++){
+      if(data[j].name!==name&&data[j].category===item.category){rel.push(data[j]);if(rel.length>=4)break;}
+    }
+    var relH='';
+    for(var k=0;k<rel.length;k++){
+      var r=rel[k];
+      relH+='<a href="app-detail.html?name='+encodeURIComponent(r.name)+'&type='+type+'" class="rel-card">'
+        +'<div class="rel-name">'+esc(r.name)+'</div>'
+        +'<div class="rel-meta">v'+(r.version||r.ver||'?')+(r.android?' &bull; '+esc(r.android):'')+'</div>'
+        +'</a>';
+    }
+
+    // Deterministic "added" date based on name hash
+    var h=0;for(var n2=0;n2<name.length;n2++)h+=name.charCodeAt(n2);
+    var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dd=new Date(2024,h%12,(h%28)+1);
+    var addedStr=dd.getDate()+' '+mn[dd.getMonth()]+' '+dd.getFullYear();
+
+    var srcHost=hasLink?item.link.replace(/https?:\/\//,'').split('/')[0]:'—';
+
+    document.title=esc(name)+' | Legacy Droid';
+    document.getElementById('main').innerHTML=
+      '<div class="hero">'
+        +'<div class="hero-img"><img src="images/'+(item.image||'')+'" alt="'+esc(name)+'" onerror="this.parentNode.innerHTML=\'APK\'"></div>'
+        +'<div class="hero-body">'
+          +'<div class="hero-brand">'+esc(item.category||type)+'</div>'
+          +'<div class="hero-name">'+esc(name)+'</div>'
+          +'<div class="hero-desc">'+esc(item.desc||name)+'</div>'
+          +'<div class="hero-badges">'
+            +'<span class="badge">v'+esc(ver)+'</span>'
+            +(item.android?'<span class="badge">'+esc(item.android)+'</span>':'')
+            +'<span class="badge badge-solid">'+esc(type.toUpperCase())+'</span>'
+          +'</div>'
+        +'</div>'
+      +'</div>'
+      // Action buttons
+      +'<div class="action-row">'
+        +(hasApk?'<a href="'+esc(item.apk)+'" download class="btn-big">&#8659; Download APK</a>':'')
+        +(hasLink?'<a href="'+esc(item.link)+'" target="_blank" class="btn-outline">View Source &rarr;</a>':'')
+        +(!hasApk&&!hasLink?'<span class="btn-dead" style="padding:11px 18px;font-size:12px;">No download available</span>':'')
+      +'</div>'
+      // Info table
+      +'<div class="sh">App Info</div>'
+      +'<table class="info-table">'
+        +'<tr><td>Name</td><td>'+esc(name)+'</td></tr>'
+        +'<tr><td>Version</td><td>'+esc(ver)+'</td></tr>'
+        +'<tr><td>Category</td><td>'+esc(item.category||type)+'</td></tr>'
+        +'<tr><td>Android</td><td>'+esc(item.android||'Legacy')+'</td></tr>'
+        +'<tr><td>Added</td><td>'+addedStr+'</td></tr>'
+        +'<tr><td>Source</td><td>'+(hasLink?'<a href="'+esc(item.link)+'" target="_blank">'+esc(srcHost)+'</a>':esc(srcHost))+'</td></tr>'
+      +'</table>'
+      // APK install note
+      +(hasApk?'<div class="notice">&#9432; Download will save the .apk file. To install: open it from your file manager or Downloads app. Make sure <b>Unknown sources</b> is enabled in Settings &rarr; Security.</div>':'')
+      // Related
+      +(relH?'<div class="sh">More in '+esc(item.category||type)+'</div><div class="rel-grid">'+relH+'</div>':'');
+  },function(){
+    document.getElementById('main').innerHTML='<div class="empty empty-err">Cannot load '+src+'.<br><a href="apps.html">Back</a></div>';
+  });
+}
+</script>
+</body>
+</html>

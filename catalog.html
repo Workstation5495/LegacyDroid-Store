@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Device Catalog | Legacy Droid</title>
+<link rel="stylesheet" href="holo.css">
+</head>
+<body>
+
+<div class="ab">
+  <h1 class="ab-title">LEGACY CATALOG</h1>
+  <span class="ab-meta">DEVICES</span>
+</div>
+
+<nav class="nav">
+  <a href="index.html">Home</a>
+  <a href="catalog.html" class="on">Devices</a>
+  <a href="software.html">Software</a>
+  <a href="apps.html">Apps</a>
+  <a href="games.html">Games</a>
+</nav>
+
+<div class="search-wrap">
+  <input class="search-input" type="text" id="q" placeholder="Search: Galaxy S3, Nexus 4, mako, sony..." oninput="search()" onkeyup="search()">
+</div>
+<div class="status" id="status">Connecting to LineageOS database...</div>
+
+<div class="dev-grid" id="grid"><div class="empty" style="width:100%">Loading devices...</div></div>
+
+<footer>
+  <p>Data: <a href="https://wiki.lineageos.org" target="_blank">LineageOS Wiki</a> &nbsp;&#183;&nbsp; <a href="https://t.me/LegacyDroid">t.me/LegacyDroid</a></p>
+  <p style="opacity:.4;font-size:11px;margin-top:6px;">Legacy Droid &copy; 2026</p>
+</footer>
+
+<script>
+var all=[];
+function getText(url,cb,err){
+  if(window.fetch){fetch(url).then(function(r){if(!r.ok)throw 0;return r.text();}).then(cb).catch(err||function(){});}
+  else{var x=new XMLHttpRequest();x.open('GET',url,true);x.onreadystatechange=function(){if(x.readyState===4){if(x.status===200)cb(x.responseText);else if(err)err();}};x.send();}
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function parseYaml(txt){
+  var lines=txt.split('\n'),devs=[],cur={},seen={};
+  for(var i=0;i<lines.length;i++){
+    var t=lines[i].trim();
+    // new entry
+    if(t.indexOf('- name:')===0){
+      if(cur.name&&cur.codename&&cur.vendor&&!seen[cur.codename]){seen[cur.codename]=1;devs.push({name:cur.name,codename:cur.codename,vendor:cur.vendor});}
+      cur={name:t.slice(7).trim().replace(/"/g,'').replace(/'/g,'')};
+      continue;
+    }
+    function val(pref){if(t.indexOf(pref)===0)return t.slice(pref.length).replace(/"/g,'').replace(/'/g,'').trim();return null;}
+    var v;
+    if((v=val('name:'))!==null)cur.name=v;
+    if((v=val('codename:'))!==null)cur.codename=v;
+    if((v=val('vendor:'))!==null)cur.vendor=v;
+  }
+  if(cur.name&&cur.codename&&cur.vendor&&!seen[cur.codename])devs.push({name:cur.name,codename:cur.codename,vendor:cur.vendor});
+  return devs;
+}
+function render(list){
+  var el=document.getElementById('grid');
+  if(!list.length){el.innerHTML='<div class="empty" style="width:100%">No devices found</div>';return;}
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var d=list[i];
+    var img='https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/images/devices/'+d.codename+'.png';
+    var img2='https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/images/devices/'+d.codename+'_hero.png';
+    var dUrl='device-detail.html?codename='+encodeURIComponent(d.codename)+'&name='+encodeURIComponent(d.name)+'&vendor='+encodeURIComponent(d.vendor);
+    h+='<a href="'+dUrl+'" class="dev-card">'
+      +'<img src="'+img+'" loading="lazy" alt="'+esc(d.name)+'" onerror="if(this.src.indexOf(\'_hero\')<0){this.src=\''+img2+'\';}else{this.style.opacity=\'.05\';this.src=\'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\';}">'
+      +'<span class="dev-brand">'+esc(d.vendor)+'</span>'
+      +'<div class="dev-name">'+esc(d.name)+'</div>'
+      +'<div class="dev-code">'+esc(d.codename)+'</div>'
+      +'</a>';
+  }
+  el.innerHTML=h;
+}
+function search(){
+  var q=(document.getElementById('q').value||'').toLowerCase().trim();
+  if(!q){render(all);document.getElementById('status').textContent=all.length+' devices';return;}
+  var f=all.filter(function(d){return d.name.toLowerCase().indexOf(q)>=0||d.vendor.toLowerCase().indexOf(q)>=0||d.codename.toLowerCase().indexOf(q)>=0;});
+  render(f);
+  document.getElementById('status').textContent='Found: '+f.length;
+}
+getText('https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/_data/devices.yml',function(txt){
+  all=parseYaml(txt);
+  all.sort(function(a,b){return a.vendor.localeCompare(b.vendor);});
+  render(all);
+  document.getElementById('status').textContent='Archive: '+all.length+' devices';
+},function(){
+  document.getElementById('status').textContent='Database offline';
+  document.getElementById('grid').innerHTML='<div class="empty empty-err" style="width:100%">LineageOS database unreachable.<br>Check your internet connection.</div>';
+});
+</script>
+</body>
+</html>
