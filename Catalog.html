@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Device Archive | Legacy Droid</title>
+    <style>
+        :root {
+            --holo-blue: #33b5e5;
+            --bg: #000;
+            --card-bg: #0a0a0a;
+            --border: #333;
+        }
+
+        body { background-color: var(--bg); color: #fff; font-family: sans-serif; margin: 0; }
+        
+        /* Action Bar */
+        .action-bar { 
+            background: var(--bg); height: 56px; display: flex; 
+            align-items: center; padding: 0 16px; border-bottom: 2px solid var(--holo-blue);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        nav { display: flex; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+        nav a { flex: 1; text-align: center; padding: 14px 10px; color: #fff; text-decoration: none; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+        .active { border-bottom: 3px solid var(--holo-blue); color: var(--holo-blue); }
+
+        /* Search Area */
+        .search-area { padding: 15px; background: #111; border-bottom: 1px solid var(--border); }
+        #search { 
+            width: 100%; padding: 12px; background: #000; border: 1px solid var(--holo-blue); 
+            color: #fff; font-size: 16px; outline: none;
+        }
+
+        .status-bar { font-size: 11px; color: #666; padding: 8px 15px; background: #050505; }
+
+        /* Device Grid */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .device-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+            transition: 0.2s;
+        }
+        
+        .device-card:hover { border-color: var(--holo-blue); }
+
+        .device-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .brand { font-size: 10px; color: var(--holo-blue); text-transform: uppercase; display: block; }
+        .model { font-size: 14px; font-weight: bold; margin: 4px 0; }
+        .codename { font-family: monospace; font-size: 11px; color: #777; }
+
+        .loading { text-align: center; padding: 50px; color: var(--holo-blue); font-style: italic; }
+
+        /* Mobile adaptation */
+        @media (max-width: 480px) {
+            .device-grid { grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+            .device-card { padding: 8px; }
+            .device-card img { height: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="action-bar">
+    <h1 style="font-size: 18px; font-weight: 300; margin: 0;">LEGACY CATALOG</h1>
+</div>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="catalog.html" class="active">Devices</a>
+    <a href="software.html">Software</a>
+    <a href="apps.html">Apps</a>
+</nav>
+
+<div class="search-area">
+    <input type="text" id="search" placeholder="Search (e.g. Galaxy S3, mako, Sony)..." onkeyup="searchDevice()">
+</div>
+
+<div class="status-bar" id="counter">Connecting to global legacy database...</div>
+
+<div id="loader" class="loading">Fetching devices and images...</div>
+
+<div class="device-grid" id="gridContent">
+    </div>
+
+<script>
+    let allDevices = [];
+
+    async function fetchGlobalData() {
+        try {
+            // Используем официальный конфиг LineageOS Wiki как самый полный источник
+            const response = await fetch('https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/_data/devices.yml');
+            const text = await response.text();
+            
+            const lines = text.split('\n');
+            let currentDevice = {};
+            
+            lines.forEach(line => {
+                if (line.trim().startsWith('name:')) currentDevice.name = line.split(':')[1].trim().replace(/"/g, '');
+                if (line.trim().startsWith('codename:')) currentDevice.codename = line.split(':')[1].trim();
+                if (line.trim().startsWith('vendor:')) currentDevice.vendor = line.split(':')[1].trim();
+                
+                // Когда все поля собраны, сохраняем устройство
+                if (currentDevice.name && currentDevice.codename && currentDevice.vendor) {
+                    // Генерируем ссылку на изображение из репозитория LineageOS Wiki
+                    currentDevice.image = `https://raw.githubusercontent.com/LineageOS/lineage_wiki/master/images/devices/${currentDevice.codename}.png`;
+                    allDevices.push({...currentDevice});
+                    currentDevice = {};
+                }
+            });
+
+            // Сортируем по бренду
+            allDevices.sort((a, b) => a.vendor.localeCompare(b.vendor));
+
+            displayDevices(allDevices);
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('counter').innerText = `Archive Online: ${allDevices.length} devices found.`;
+            
+        } catch (error) {
+            document.getElementById('loader').innerText = "Error: Database is offline. Check connection.";
+        }
+    }
+
+    function displayDevices(list) {
+        const grid = document.getElementById('gridContent');
+        grid.innerHTML = list.map(dev => `
+            <div class="device-card">
+                <img src="${dev.image}" loading="lazy" onerror="this.src='https://via.placeholder.com/150/000000/33b5e5?text=${dev.codename}'">
+                <span class="brand">${dev.vendor}</span>
+                <div class="model">${dev.name}</div>
+                <div class="codename">${dev.codename}</div>
+            </div>
+        `).join('');
+    }
+
+    function searchDevice() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const filtered = allDevices.filter(d => 
+            d.name.toLowerCase().includes(query) || 
+            d.vendor.toLowerCase().includes(query) || 
+            d.codename.toLowerCase().includes(query)
+        );
+        displayDevices(filtered);
+    }
+
+    fetchGlobalData();
+</script>
+
+</body>
+</html>
